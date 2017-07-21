@@ -89,10 +89,7 @@ public class Board {
     */
     public void displayBoard() {
     	// Add some padding above and below the board
-    	for (int i = 0; i < 5; i++) {
-	    	System.out.println();
-    	}
-    	// Now print the grid
+    	System.out.println();
     	int row_count = 0, col_count = 0;
     	for (int i = 0; i < NUM_ROWS; i++) {
     		row_count++;
@@ -131,40 +128,84 @@ public class Board {
     * solved.
     */
     public void solve() {
-    	int upper_limit = 0;
-    	while (!isGridSolved()) {
-    		/*
-    		Used as a saftey mechanism to make sure 
-    		the program doesn't crash if the program
-    		cannot solve it, resulting in an infinite
-    		loop.
-    		*/
-    		if (upper_limit++ == 100000) {
-    			System.out.println("Could not solve it.");
-    			System.exit(0);
-    		}
-    		for (int i = 0; i < NUM_ROWS; i++) {
-    			for (int j = 0; j < NUM_COLS; j++) {
-    				if (board[i][j] != 0) {
-    					continue;
-    				}
-    				// Holds all possible numbers that could go into this position.
-    				// If the no. of possibilities == 1, then that is the solution.
-    				ArrayList<Integer> possibilities = new ArrayList<Integer>();
-    				for (int k = 1; k <= 9; k++) {
-    					if (isValidNumberInPos(i, j, k)) {
-    						possibilities.add(k);
-    					}
-    				}
-    				// Storing the solution in the array.
-    				if (possibilities.size() == 1) {
-    					board[i][j] = possibilities.get(0);
-    				}
-    			}
-    		}
-    	}
+        int upper_limit = 0;
+        while (!isGridSolved()) {
+            /*
+            Used as a saftey mechanism to make sure 
+            the program doesn't crash if the program
+            cannot solve it, resulting in an infinite
+            loop.
+            */
+            if (upper_limit++ == 100000) {
+                // If we fail to find a solution using this method,
+                // use the recursive + backtracking solution to find
+                // a solution.
+                solve(0, 0);
+            }
+            for (int i = 0; i < NUM_ROWS; i++) {
+                for (int j = 0; j < NUM_COLS; j++) {
+                    if (board[i][j] != 0) {
+                        continue;
+                    }
+                    // Holds all possible numbers that could go into this position.
+                    // If the no. of possibilities == 1, then that is the solution.
+                    ArrayList<Integer> possibilities = new ArrayList<Integer>();
+                    for (int k = 1; k <= 9; k++) {
+                        if (isValidNumberInPos(i, j, k)) {
+                            possibilities.add(k);
+                        }
+                    }
+                    // Storing the solution in the array.
+                    if (possibilities.size() == 1) {
+                        board[i][j] = possibilities.get(0);
+                    }
+                }
+            }
+        }
+        System.out.println("SOLUTION WITH ITERATION: ");
+        displayBoard();
     }
 
+    /**
+    * Recursive + Backtracking Solution to solve the Sudoku puzzle.
+    * Basically performing an exhaustive search for all possible
+    * combinations.
+    * @param row The row that we are currently interested in.
+    * @param col The column that we are currently interested in.
+    */
+    public void solve(int row, int col) {
+        if (row > 8) {
+            System.out.println("SOLUTION WITH BRUTE FORCE:");
+            displayBoard();
+            System.exit(0);
+        }
+        if (board[row][col] != 0) {
+            next(row, col);
+        }
+        else {
+            for (int i = 1; i < 10; i++) {
+                if (isValidNumberInPos(row, col, i)) {
+                    board[row][col] = i;
+                    next(row, col);
+                }
+            }
+            board[row][col] = 0;
+        }
+    }
+
+    /**
+    * Gets the next valid row + column coordinates and makes the method
+    * call to the solve method.
+    * @param row The row after which we are interested in.
+    * @param col The column after which we are interested in.
+    */
+    public void next(int row, int col) {
+        if (col < 8) {
+            solve(row, col + 1);
+        } else {
+            solve(row + 1, 0);
+        }
+    }
     /**
     * Checks each row, column and 3x3 small grid to make sure
     * that if we place the number (num) in that position (row, col),

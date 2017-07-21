@@ -1,4 +1,4 @@
-class Sudoku {
+public class Sudoku {
     /**
     * Driver method to test the Board class and get it working.
     */
@@ -8,10 +8,7 @@ class Sudoku {
         board.getBoard();
         if (board.isValidBoard()) {
             board.displayBoard();
-            // Solve it
             board.solve();
-            // Display solved board
-            board.displayBoard();
         } else {
             System.out.println("ENTER A VALID BOARD.");
         }
